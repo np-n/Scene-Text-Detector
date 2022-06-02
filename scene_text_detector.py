@@ -8,6 +8,7 @@ import math
 import numpy as np
 from scipy import ndimage
 from treeutil.vision.imutil import imresize
+from utils.image_alignment import align_image
 
 
 def east_detector(image_path):
@@ -15,13 +16,15 @@ def east_detector(image_path):
     image = cv2.imread(image_path)
     original_image = image.copy()
 
-    aligned_image = align_image_3(image,image_path)
+    aligned_image = align_image(image)
+    print(aligned_image)
     plt.imshow(aligned_image)
     aligned_original = aligned_image.copy()
 
     image = aligned_image
 
     h,w = image.shape[:2]
+    print('ffff')
 
     # set the new width and height and then determine the ratio in change
     # for both the width and height
@@ -32,7 +35,7 @@ def east_detector(image_path):
     # resize the image and grab the new image dimensions
     image = cv2.resize(image,(new_width,new_height))
     h,w = image.shape[:2]
-
+    print('kkk')
     # load the pre-trained EAST text detector
     net = cv2.dnn.readNet('./resources/frozen_east_text_detection.pb')
 
@@ -191,7 +194,7 @@ def custom_detector():
 
 if __name__ == "__main__":
     # local storage image path
-    image_path = '/home/npn/Downloads/Idendity Documents/NP_CITIZENSHIP/treeleaf_employees/All/BACK/back13.png'
+    image_path = '/home/npn/Desktop/Scene-Text-Detector/images/scence_image1.jpeg'
     east_detector(image_path)
 
 
