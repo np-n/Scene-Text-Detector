@@ -1,14 +1,10 @@
 import cv2
 import time
 from imutils.object_detection import non_max_suppression
-import numpy as np
 import matplotlib.pyplot as plt
-import re
-import math
 import numpy as np
-from scipy import ndimage
-from treeutil.vision.imutil import imresize
 from utils.image_alignment import align_image
+import argparse
 
 
 def east_detector(image_path):
@@ -17,14 +13,12 @@ def east_detector(image_path):
     original_image = image.copy()
 
     aligned_image = align_image(image)
-    print(aligned_image)
     plt.imshow(aligned_image)
     aligned_original = aligned_image.copy()
 
     image = aligned_image
 
     h,w = image.shape[:2]
-    print('ffff')
 
     # set the new width and height and then determine the ratio in change
     # for both the width and height
@@ -35,7 +29,6 @@ def east_detector(image_path):
     # resize the image and grab the new image dimensions
     image = cv2.resize(image,(new_width,new_height))
     h,w = image.shape[:2]
-    print('kkk')
     # load the pre-trained EAST text detector
     net = cv2.dnn.readNet('./resources/frozen_east_text_detection.pb')
 
@@ -123,78 +116,17 @@ def east_detector(image_path):
     #cv2.imshow("Text Detection", original_image)
     plt.imshow(aligned_original,'gray')
     plt.show()
-
-
-
-
-
-def align_image_3(image, image_path):
-
-    ''' Probabilistic Hough Line transform with average slope of lines'''
-    angles = []
-    original_img = image.copy()
-    img_copy = image.copy()
-    img_copy_1 = image.copy()
-    gray = cv2.cvtColor(img_copy, cv2.COLOR_RGB2GRAY)
-    blur = cv2.GaussianBlur(gray, (5, 5), 0)
-    #cv2.imshow('blur', blur)
-    edged = cv2.Canny(blur,100, 255)
-    #cv2.imshow('edge', edged)
-    dilate = cv2.dilate(edged, (7, 7), 3)
-    # plt.imshow(dilate)
-    # plt.show()
-    #cv2.imshow('dilate', dilate)
-    lines = cv2.HoughLinesP(dilate,1,np.pi/180,200,None,150,10)
-    print(lines)
-    # Draw the lines
-    if lines is not None:
-        horizontal_lines = []
-        for i,line  in enumerate(lines):
-            x1 = line[0][0]
-            y1 = line[0][1]
-            x2 = line[0][2]
-            y2 = line[0][3]
-            cv2.line(img_copy, (x1,y1), (x2,y2), (0, 0, 255), 1, cv2.LINE_AA)
-            diff_x = x2-x1
-            diff_y = y2-y1
-            if abs(diff_y) < 300 and abs(diff_x > 0):
-                horizontal_lines.append((x1, y1, x2, y2))
-                try:
-                    slope = diff_y / diff_x
-                    angle = math.degrees(math.atan(slope))
-                    angles.append(angle)
-                except Exception as e:
-                    print(e)
-                    continue
-        plt.imshow(img_copy)
-        plt.show()
-        #cv2.imshow('All Extracted Lines', img_copy)
-        for line in horizontal_lines:
-            print(line)
-            cv2.line(img_copy_1, (line[0],line[1]), (line[2],line[3]), (0,0,255), 1, cv2.LINE_AA)
-            #cv2.imshow('Formated lines',img_copy_1)
-        rotation_angle = sum(angles) / len(angles)
-        print('Image is rotated by {}'.format(rotation_angle))
-
-        img_rotated = ndimage.rotate(original_img, rotation_angle,reshape=True)
-        #cv2.imshow('Rotated image', img_rotated)
-        #cv2.waitKey(0)
-        #img_dir,img_name,img_ext = get_img_loc(image_path)
-        #save_img_path = img_dir +'/'+img_name+'_aligned_3'+'.'+img_ext
-        #return img_rotated,save_img_path
-        return img_rotated
-
-
-def custom_detector():
-    pass
-
-
+    return aligned_original
 
 
 
 if __name__ == "__main__":
     # local storage image path
-    image_path = '/home/npn/Desktop/Scene-Text-Detector/images/scence_image1.jpeg'
-    east_detector(image_path)
+    parser = argparse.ArgumentParser(description='Location of test image')
+    parser.add_argument('-i','--input_image',help='test image location',default='./images/scene_image1.jpeg')
+    args = parser.parse_args()
+    image_path = args.input_image
+    image = east_detector(image_path)
+    cv2.imwrite('./images/output_scene_image2.jpg',image)
 
 
