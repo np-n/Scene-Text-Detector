@@ -1,0 +1,8 @@
+opencv-python
+imutils
+matplotlib
+numpy
+skimage
+deskew
+pillow
+scipy
