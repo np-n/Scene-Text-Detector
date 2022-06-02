@@ -1,5 +1,5 @@
 ## Scene Text Detector
-
+I have used OpenCV EAST text detector as the text detector:
  - EAST: An Efficient and Accurate Scene Text Detector(EAST) is deep learning based text detector.
  - The EAST pipeline is capable of predicting words and lines of text at arbitrary orientations on 720p images, and furthermore, can run at 13 FPS, according to the authors.
 
